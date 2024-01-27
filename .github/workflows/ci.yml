@@ -11,7 +11,7 @@ name: CI
 jobs:
   tests:
     runs-on: ${{ matrix.os }}
-    name: testing / ${{ matrix.os }} / Java ${{ matrix.java }} / Dist ${{ matrix.dist }}
+    name: testing / ${{ matrix.os }} / Java ${{ matrix.java }} / ${{ matrix.dist }}
     strategy:
       fail-fast: false
       matrix:
@@ -21,10 +21,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
+        if: ${{ !(matrix.java < 17 && matrix.dist == 'oracle' && matrix.os != 'ubuntu-latest') }}  # Ignore Oracle dist Java Version < 17 on Windows and macOS
         name: Setup Java ${{ matrix.java }} / ${{ matrix.dist }}
         with:
           distribution: ${{ matrix.dist }}
           java-version: ${{ matrix.java }}
-        if: ${{ !(matrix.java < 17 && matrix.dist == 'oracle') }}  # Ignore Oracle dist Java Version < 17
       - name: Test with Maven
+        if: ${{ !(matrix.java < 17 && matrix.dist == 'oracle' && matrix.os != 'ubuntu-latest') }}  # Ignore Oracle dist Java Version < 17 on Windows and macOS
         run: mvn test
